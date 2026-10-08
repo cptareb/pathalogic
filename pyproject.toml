@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=61.0.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "my_simple_app"
+version = "0.1.0"
+description = "A short sentence describing what my software does"
+readme = "README.md"
+requires-python = ">=3.8"
+authors = [
+    { name = "Your Name", email = "your.email@example.com" }
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+# 1. LIST YOUR EXTERNAL LIBRARIES HERE
+dependencies = [
+    "requests>=2.28.0",
+    "pygame>=2.5.0",
+]
+
+# 2. OPTIONAL: TURN YOUR CODE INTO A TERMINAL COMMAND
+[project.scripts]
+run-my-app = "my_code.main:main_function"
