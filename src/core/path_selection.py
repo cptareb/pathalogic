@@ -55,17 +55,24 @@ def getPathInfo(path:list[str], nodes:list[dict]) -> list[dict]:
                 output.append(node)
     return output
 
-def hasPattern(pattern:list[str], path:list[str]) -> bool:
+def hasPattern(pattern:list[str], path_nodes:list[dict]) -> bool:
     '''
     Given an input "pattern", returns whether a path contains that pattern
     For example, MMMM pattern, RXE pattern, RERE pattern, QQQ+ pattern
     pattern :: list of sequential node "kinds" e.g., "monster", "restsite"
+    nodes :: list of sequential nodes in a path
+    Note - this won't work if you pass a nested array as path_nodes; this fxn works on one path at a time
     '''
-    window_size = len(pattern)
-    i, j = 0, window_size
+    i, j = 0, len(pattern) #say, MMM would be 0, 3
 
-    while j < len(path):
-        if path[i:j-1] == pattern:
-            i += 1
-            j += 1
+    #sc
+    if j > len(path_nodes):
+        return False
+
+
+    while j < len(path_nodes):
+        obs = [node["kind"] for node in path_nodes[i:j]] #012 then 123 then 234 etc. Not worrying about optimizing bc O(1)
+        if obs==pattern: return True
+        i += 1
+        j += 1
     return False

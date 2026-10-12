@@ -20,5 +20,14 @@ def test_getPathInfo():
     info = getPathInfo(path, map["nodes"])
     print(info)
 
-test_getPathInfo()
+def test_hasPattern():
+    pattern = ["monster","monster","monster"]
+    path = getAllPaths("1,1", map["nodes"])[0]
+    info = getPathInfo(path, map["nodes"])
+    assert hasPattern(pattern, info)
+    pattern = ["restsite","restsite"]
+    assert not hasPattern(pattern, info)
+
+
+test_hasPattern()
     
