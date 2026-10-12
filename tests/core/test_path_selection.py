@@ -15,5 +15,10 @@ def test_getAllPaths():
     start = "1,1"
     print(getAllPaths(start, map["nodes"]))
 
-test_getAllPaths()
+def test_getPathInfo():
+    path = getAllPaths("1,1", map["nodes"])[0]
+    info = getPathInfo(path, map["nodes"])
+    print(info)
+
+test_getPathInfo()
     

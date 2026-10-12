@@ -40,3 +40,32 @@ def getAllPaths(start_coords:str, nodes:list[dict]) -> list[list[str]]:
             return paths
 
     return []
+
+def getPathInfo(path:list[str], nodes:list[dict]) -> list[dict]:
+    '''
+    Given a simple coordinate path, gets in-depth info for that path from full map dict
+    Useful for investigating particular paths in detail
+    path :: simple coordinate path
+    nodes :: full map dict
+    '''
+    output = []
+    for coord in path:
+        for node in nodes:
+            if node["coord"]==coord:
+                output.append(node)
+    return output
+
+def hasPattern(pattern:list[str], path:list[str]) -> bool:
+    '''
+    Given an input "pattern", returns whether a path contains that pattern
+    For example, MMMM pattern, RXE pattern, RERE pattern, QQQ+ pattern
+    pattern :: list of sequential node "kinds" e.g., "monster", "restsite"
+    '''
+    window_size = len(pattern)
+    i, j = 0, window_size
+
+    while j < len(path):
+        if path[i:j-1] == pattern:
+            i += 1
+            j += 1
+    return False
