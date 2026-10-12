@@ -4,7 +4,7 @@ import json
 from dotenv import load_dotenv
 load_dotenv()
 
-api_key = os.getenv("SPIRECODEX_KEY")
+API_KEY = os.getenv("SPIRECODEX_KEY")
 url = "https://spire-codex.com/api/"
 
 def GET_json(endpoint:str, params:dict):
@@ -14,7 +14,7 @@ def GET_json(endpoint:str, params:dict):
     params :: HTTP params for that particular endpoint (again, see docs)
     '''
     headers = {
-        "X-API-Key": api_key,
+        "X-API-Key": API_KEY,
         "Accept":"application/json"
     }
 
