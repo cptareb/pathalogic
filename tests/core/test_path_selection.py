@@ -11,5 +11,9 @@ def test_isValidPath():
     assert not isValidPath(start, end, map["nodes"])
     print("Test cases passed")
 
-test_isValidPath()
+def test_getAllPaths():
+    start = "1,1"
+    print(getAllPaths(start, map["nodes"]))
+
+test_getAllPaths()
     
