@@ -28,6 +28,17 @@ def test_hasPattern():
     pattern = ["restsite","restsite"]
     assert not hasPattern(pattern, info)
 
+def test_hasPattern_filler():
+    pattern = ["restsite", "elite", "_", "restsite"]
+    path = getAllPaths("1,1", map["nodes"])[0]
+    info = getPathInfo(path, map["nodes"])
+    assert hasPattern(pattern, info)
+    pattern = ["_", "restsite", "elite", "_", "restsite", "_"]
+    assert hasPattern(pattern, info)
+    pattern = ["boss", "_"]
+    assert hasPattern(pattern, info)
+    pattern = ["restsite", "_", "elite"]
+    assert hasPattern(pattern, info)
 
-test_hasPattern()
+test_hasPattern_filler()
     
