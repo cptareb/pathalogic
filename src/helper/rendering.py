@@ -3,7 +3,6 @@ import matplotlib.pyplot as plt
 
 def render_graph(
     nodes: list[dict],
-    node_colors: dict[str, str] | None = None,
 ) -> None:
     graph = nx.DiGraph()
     positions = {}
@@ -18,11 +17,26 @@ def render_graph(
         for child in node["children"]:
             graph.add_edge(coord, child)
 
-    # Default color, overridden by individual node colors
+    color_map = {
+        "monster": "white",
+        "elite": "red",
+        "restsite": "green",
+        "unknown": "yellow",
+        "treasure": "orange",
+        "boss": "purple",
+        "shop": "lightgreen",
+        "ancient":"gray"
+        }
+
+    kind_by_coord = {
+        node["coord"]: node["kind"]
+        for node in nodes
+        }
+
     colors = [
-        (node_colors or {}).get(coord, "#f2f2f2")
+        color_map.get(kind_by_coord[coord], "black")
         for coord in graph.nodes
-    ]
+        ]
 
     fig, ax = plt.subplots(figsize=(10, 7))
 
