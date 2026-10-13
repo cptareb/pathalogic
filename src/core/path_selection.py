@@ -103,5 +103,61 @@ def hasPattern(pattern:list[str], path_nodes:list[dict]) -> bool:
             j+=1
         return False
 
+def locatePattern(pattern:list[str], path_nodes:list[dict]) -> list[list[str]]:
+    '''
+    returns the coordinates of all nodes involved in a particular pattern in a given path
+    e.g., if a pattern existed at 1,1 -> 2,1 -> 3,2, would return ["1,1", "2,1,", "3,2"]
+    pattern :: see hasPattern: same deal
+    path_nodes :: see hasPattern: same deal
+    '''
+    if hasPattern(pattern, path_nodes):
+        output = []
+        pattern = list_strip(pattern, "_") #since _X_X_ is essentially the presence of X_X pattern
+        i, j = 0, len(pattern) #say, MMM would be 0, 3
+        
+        #sc
+        if j > len(path_nodes):
+            return False
+    
+        
+        #normal case
+        if not "_" in pattern:
+        
+            while j <= len(path_nodes):
+                obs = [node["kind"] for node in path_nodes[i:j]] #012 then 123 then 234 etc. Not worrying about optimizing bc O(1)
+                obs_coords = [node["coord"] for node in path_nodes[i:j]]
+                if obs==pattern: output.append(obs_coords)
+                i += 1
+                j += 1
+    
+        #filler case
+        else:
+            while j <= len(path_nodes):
+                obs = [node["kind"] for node in path_nodes[i:j]] #so say it's RME
+                obs_coords = [node["coord"] for node in path_nodes[i:j]]
+                #for every event in obs, check if it has a match or a filler in pattern
+                #if every event comes out OK, return true
+                comp = [kind for kind in pattern if kind!="_"]
+                dropped = hasPattern(comp, path_nodes)
+                if comp in obs:  output.append(obs_coords)
+                acceptable = True
+                for k in range(len(obs)):
+                    if (obs[k] != pattern[k]) and (pattern[k] != "_"):
+                        acceptable = False
+                        break
+                if acceptable or dropped:
+                    output.append(obs_coords)
+                i+=1
+                j+=1
+        return output
+    else:
+        return []
+
+def gradeOptionality():
+    '''
+    work on this later
+    '''
+    pass
+
 def hasPatternSens(pattern:list[str], path_nodes:list[dict], before="", after=""):
     pass

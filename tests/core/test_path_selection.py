@@ -40,5 +40,13 @@ def test_hasPattern_filler():
     pattern = ["restsite", "_", "elite"]
     assert hasPattern(pattern, info)
 
-test_hasPattern_filler()
+def test_locatePattern():
+    pattern = ["shop","_","boss"]
+    path = getAllPaths("1,1", map["nodes"])[1]
+    print(path)
+    info = getPathInfo(path, map["nodes"])
+    print(locatePattern(pattern, info))
+
+
+test_locatePattern()
     
