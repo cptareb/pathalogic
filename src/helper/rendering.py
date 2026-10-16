@@ -69,20 +69,22 @@ def add_path_overlay(
     color: str = "#00aaff",
     node_size: int = 1100,
     line_width: float = 3,
+    draw_edges: bool = True
 ):
     # Draw highlighted edges on top of the existing graph
     path_edges = list(zip(path, path[1:]))
 
-    nx.draw_networkx_edges(
-        graph,
-        pos=positions,
-        ax=ax,
-        edgelist=path_edges,
-        edge_color=color,
-        width=line_width,
-        arrows=True,
-        arrowsize=20,
-    )
+    if draw_edges:
+        nx.draw_networkx_edges(
+            graph,
+            pos=positions,
+            ax=ax,
+            edgelist=path_edges,
+            edge_color=color,
+            width=line_width,
+            arrows=True,
+            arrowsize=20,
+        )
 
     # Draw unfilled circles around highlighted nodes
     nx.draw_networkx_nodes(

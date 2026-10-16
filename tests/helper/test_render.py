@@ -9,6 +9,7 @@ def test_render_graph():
     path = getAllPaths("1,1", map["nodes"])[1]
     info = getPathInfo(path, map["nodes"])
     pattern_loc = locatePattern(pattern, info)
+    opt_loc = locateOptionality(info)
     add_path_overlay(
         ax, graph, positions,
         path,
@@ -20,6 +21,13 @@ def test_render_graph():
             p,
             color="#00aaff",
         )
+
+    add_path_overlay(
+                ax, graph, positions,
+                opt_loc,
+                color="yellow",
+                draw_edges=False
+            )
 
     plt.show()
 
