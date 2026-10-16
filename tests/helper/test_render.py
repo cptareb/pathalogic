@@ -5,22 +5,18 @@ map = {'t': 'map', 's': 3, 'ms': 627, 'floor': 0, 'act': 1, 'gen': 1, 'boss': 'W
 
 def test_render_graph():
     fig, ax, graph, positions = render_graph(map["nodes"])
-    pattern = ["restsite","elite"]
     path = getAllPaths("1,1", map["nodes"])[1]
     info = getPathInfo(path, map["nodes"])
-    pattern_loc = locatePattern(pattern, info)
     opt_loc = locateOptionality(info)
-    add_path_overlay(
-        ax, graph, positions,
-        path,
-        color="turquoise"
-    )
-    for p in pattern_loc:
+    best_paths = locateBestPaths(map)
+
+    for path in best_paths:
         add_path_overlay(
             ax, graph, positions,
-            p,
-            color="#00aaff",
+            path,
+            color="red"
         )
+    
 
     add_path_overlay(
                 ax, graph, positions,
