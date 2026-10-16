@@ -52,6 +52,16 @@ def test_locateOptionality():
     nodes = getPathInfo(path, map["nodes"])
     print(locateOptionality(nodes))
 
+def test_evaluatePath(path):
 
-test_locateOptionality()
+    nodes = getPathInfo(path, map["nodes"])
+    nodes_tups = tuple([n["kind"] for n in nodes])
+    print('tups', nodes_tups)
+    print(evaluatePath(nodes_tups, heuristics["pattern_weights"]["act1"]))
+
+all_paths = getAllPaths("3,0", map["nodes"])
+for path in all_paths:
+    nodes = getPathInfo(path,map["nodes"])
+    nodes_tups = tuple([n["kind"] for n in nodes])
+    print(evaluatePath(nodes_tups, heuristics["pattern_weights"]["act1"]))
     

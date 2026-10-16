@@ -1,5 +1,6 @@
 import json
 from src.helper.generic import list_strip
+from src.core.heuristics import *
 
 def isValidPath(start_coords:str, end_coords:str, nodes:list[dict]) -> bool:
     '''
@@ -165,6 +166,18 @@ def locateOptionality(path_nodes:list[dict]) -> list[list[str]]:
             optional_nodes.append(n["coord"])
     return optional_nodes
     
+def evaluatePath(path, act_heuristics):
+    policies = {
+        "too_many_fights": "min",
+        "strong_start": "max",
+        "safe_elite": "max",
+    }
 
-def hasPatternSens(pattern:list[str], path_nodes:list[dict], before="", after=""):
-    pass
+    return sum(
+        evaluateCategory(
+            path,
+            patterns,
+            policies.get(category, "max"),
+        )
+        for category, patterns in act_heuristics.items()
+    )
