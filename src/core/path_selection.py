@@ -181,3 +181,35 @@ def evaluatePath(path, act_heuristics):
         )
         for category, patterns in act_heuristics.items()
     )
+
+def grabPathGrades(map:dict) -> list[list[str]]:
+    '''
+    Returns coordinate sequence for all possible paths in act
+    map :: full map dict
+    '''
+    output = {}
+    act = f"act{map["act"]}"
+    heur = heuristics["pattern_weights"][act]
+    all_paths = getAllPaths("3,0", map["nodes"])
+    for p in all_paths:
+        # print("p",p)
+        info = getPathInfo(p,map["nodes"])
+        # print("info",info)
+        events = tuple([n["kind"] for n in info])
+        # print("events", events)
+        grade = evaluatePath(events, heur)
+        output[tuple(p)] = grade
+    return output
+
+        
+
+def locateBestPaths(map:dict) -> list[list[str]]:
+    '''
+    Returns coordinate sequence for best path per act heuristics
+    On a tie, returns rightmost (most recently scanned) path
+    map: full map 
+    '''
+    path_grades = grabPathGrades(map)
+    max_val = max(path_grades.values())
+    best_val_paths = [k for k, v in path_grades.items() if v==max_val]
+    return best_val_paths
