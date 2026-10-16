@@ -47,6 +47,11 @@ def test_locatePattern():
     info = getPathInfo(path, map["nodes"])
     print(locatePattern(pattern, info))
 
+def test_locateOptionality():
+    path = getAllPaths("1,1", map["nodes"])[0]
+    nodes = getPathInfo(path, map["nodes"])
+    print(locateOptionality(nodes))
 
-test_locatePattern()
+
+test_locateOptionality()
     

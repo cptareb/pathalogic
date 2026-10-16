@@ -61,7 +61,7 @@ def hasPattern(pattern:list[str], path_nodes:list[dict]) -> bool:
     Given an input "pattern", returns whether a path contains that pattern
     For example, MMMM pattern, R_E pattern, RERE pattern, QQQ+ pattern
     pattern :: list of sequential node "kinds" e.g., "monster", "restsite"
-    nodes :: list of sequential nodes in a path
+    path_nodes :: list of sequential nodes in a path
     Note - this won't work if you pass a nested array as path_nodes; this fxn works on one path at a time
     "_" is considered a filler node (can be anything)
     '''
@@ -153,11 +153,18 @@ def locatePattern(pattern:list[str], path_nodes:list[dict]) -> list[list[str]]:
     else:
         return []
 
-def gradeOptionality():
+def locateOptionality(path_nodes:list[dict]) -> list[list[str]]:
     '''
-    work on this later
+    Given a path, returns the coordinates of all "optional" nodes, i.e., nodes with >1 child
+    path_nodes :: list of path node dictionaries, like from getPathInfo fxn
     '''
-    pass
+    optional_nodes = []
+    for n in path_nodes:
+        options = n.get("children", [])
+        if len(options) > 1:
+            optional_nodes.append(n["coord"])
+    return optional_nodes
+    
 
 def hasPatternSens(pattern:list[str], path_nodes:list[dict], before="", after=""):
     pass
