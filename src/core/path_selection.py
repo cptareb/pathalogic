@@ -64,9 +64,8 @@ def hasPattern(pattern:list[str], path_nodes:list[dict]) -> bool:
     pattern :: list of sequential node "kinds" e.g., "monster", "restsite"
     path_nodes :: list of sequential nodes in a path
     Note - this won't work if you pass a nested array as path_nodes; this fxn works on one path at a time
-    "_" is considered a filler node (can be anything)
+    "_" is considered a filler safe node (can be anything that isn't a known combat)
     '''
-    pattern = list_strip(pattern, "_") #since _X_X_ is essentially the presence of X_X pattern
     i, j = 0, len(pattern) #say, MMM would be 0, 3
     
     #sc
@@ -75,7 +74,7 @@ def hasPattern(pattern:list[str], path_nodes:list[dict]) -> bool:
 
     
     #normal case
-    if not "_" in pattern:
+    if (not "_" in pattern):
     
         while j <= len(path_nodes):
             obs = [node["kind"] for node in path_nodes[i:j]] #012 then 123 then 234 etc. Not worrying about optimizing bc O(1)
@@ -86,23 +85,25 @@ def hasPattern(pattern:list[str], path_nodes:list[dict]) -> bool:
 
     #filler case
     else:
+        acceptable = False
         while j <= len(path_nodes):
-            obs = [node["kind"] for node in path_nodes[i:j]] #so say it's RME
-            #for every event in obs, check if it has a match or a filler in pattern
-            #if every event comes out OK, return true
-            comp = [kind for kind in pattern if kind!="_"]
-            dropped = hasPattern(comp, path_nodes)
-            if comp in obs:  return True
-            acceptable = True
-            for k in range(len(obs)):
-                if (obs[k] != pattern[k]) and (pattern[k] != "_"):
+            obs = [node["kind"] for node in path_nodes[i:j]]
+            acceptable = True #whether the observation would fit the pattern's request
+
+            #comparing obs to safety fillers
+            for i in range(len(obs)): #so for each node in obs...
+                if pattern[i] == "safe": #if the pattern requests a safe node...
+                    if obs[i] in {"combat", "boss", "elite"}: #if safe node dne, pattern dne at that location
+                        acceptable = False
+                        break #look for pattern in next index
+                elif pattern[i] != obs[i]: #if there's a mismatch among nodes pattern doesn't rq as safe...
                     acceptable = False
                     break
-            if acceptable or dropped:
-                return True
+            if acceptable: return True #if the pattern has been located, return appropriately
             i+=1
             j+=1
-        return False
+            
+        return False 
 
 def locatePattern(pattern:list[str], path_nodes:list[dict]) -> list[list[str]]:
     '''
