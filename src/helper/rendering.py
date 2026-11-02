@@ -1,5 +1,8 @@
 import networkx as nx
 import matplotlib.pyplot as plt
+from pathlib import Path
+from PIL import Image
+from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 from ..core.path_selection import *
 
 def render_graph(
@@ -28,6 +31,16 @@ def render_graph(
         "shop": "lightgreen",
         "ancient":"gray"
         }
+    icon_map = {
+        "monster": "combat.png",
+        "elite": "elite.png",
+        "restsite": "restsite.png",
+        "unknown": "event.png",
+        "treasure": "treasure.png",
+        "boss": "boss.png",
+        "shop": "merchant.png",
+        "ancient":"event.png" #placeholder
+    }
 
     kind_by_coord = {
         node["coord"]: node["kind"]
@@ -39,7 +52,12 @@ def render_graph(
         for coord in graph.nodes
         ]
 
-    fig, ax = plt.subplots(figsize=(10, 7))
+    icons = [
+        color_map.get(kind_by_coord[coord], "event.png")
+        for coord in graph.nodes
+    ]
+
+    fig, ax = plt.subplots(figsize=(16, 10))
 
     nx.draw_networkx(
         graph,
@@ -53,8 +71,16 @@ def render_graph(
         arrows=True,
         arrowsize=15,
         font_size=8,
-        linewidths=2,
+        linewidths=1,
     )
+
+    add_node_icons(
+            ax=ax,
+            nodes=nodes,
+            positions=positions,
+            icon_map = icon_map
+    
+        )
 
     ax.set_aspect("equal")
     ax.axis("off")
@@ -68,7 +94,7 @@ def add_path_overlay(
     path: list[str],
     color: str = "#00aaff",
     node_size: int = 1100,
-    line_width: float = 3,
+    line_width: float = 2,
     draw_edges: bool = True
 ):
     # Draw highlighted edges on top of the existing graph
@@ -83,7 +109,7 @@ def add_path_overlay(
             edge_color=color,
             width=line_width,
             arrows=True,
-            arrowsize=20,
+            arrowsize=10,
         )
 
     # Draw unfilled circles around highlighted nodes
@@ -95,5 +121,46 @@ def add_path_overlay(
         node_size=node_size,
         node_color="none",
         edgecolors=color,
-        linewidths=3,
+        linewidths=2,
     )
+
+def add_node_icons(
+    ax,
+    nodes: list[dict],
+    positions: dict,
+    icon_map: dict,
+    icon_dir: str | Path = "icons",
+    zoom: float = 0.12,
+):
+    icon_dir = Path(icon_dir)
+
+    image_cache = {}
+
+    for node in nodes:
+        coord = node["coord"]
+        kind = node["kind"]
+
+        filename = icon_map.get(kind)
+        if filename is None:
+            continue
+
+        image_path = icon_dir / filename
+
+        if not image_path.exists():
+            print(f"Missing icon: {image_path}")
+            continue
+
+        if filename not in image_cache:
+            image_cache[filename] = Image.open(image_path).convert("RGBA")
+
+        image = image_cache[filename]
+
+        image_box = AnnotationBbox(
+            OffsetImage(image, zoom=zoom),
+            positions[coord],
+            frameon=False,
+            pad=0,
+            zorder=10,
+        )
+
+        ax.add_artist(image_box)

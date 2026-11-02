@@ -60,7 +60,8 @@ def test_grabPathGrades():
     print(grabPathGrades(map))
 
 def test_locateBestPaths():
-    print(locateBestPaths(map))
+    print(len(locateBestPaths(map)))
+    # print(locateBestPaths(map))
 
 test_locateBestPaths()
 

@@ -38,7 +38,7 @@ def getAllPaths(start_coords:str, nodes:list[dict]) -> list[list[str]]:
             for child in node["children"]:
                 for path in getAllPaths(child, nodes):
                     paths.append([start_coords] + path)
-
+            # print("returning", paths)
             return paths
 
     return []
@@ -74,7 +74,7 @@ def hasPattern(pattern:list[str], path_nodes:list[dict]) -> bool:
 
     
     #normal case
-    if (not "_" in pattern):
+    if "_" not in pattern:
     
         while j <= len(path_nodes):
             obs = [node["kind"] for node in path_nodes[i:j]] #012 then 123 then 234 etc. Not worrying about optimizing bc O(1)
@@ -85,6 +85,7 @@ def hasPattern(pattern:list[str], path_nodes:list[dict]) -> bool:
 
     #filler case
     else:
+        print("HAPPENED")
         acceptable = False
         while j <= len(path_nodes):
             obs = [node["kind"] for node in path_nodes[i:j]]
@@ -92,7 +93,7 @@ def hasPattern(pattern:list[str], path_nodes:list[dict]) -> bool:
 
             #comparing obs to safety fillers
             for i in range(len(obs)): #so for each node in obs...
-                if pattern[i] == "safe": #if the pattern requests a safe node...
+                if pattern[i] == "_": #if the pattern requests a safe node...
                     if obs[i] in {"combat", "boss", "elite"}: #if safe node dne, pattern dne at that location
                         acceptable = False
                         break #look for pattern in next index
@@ -114,17 +115,16 @@ def locatePattern(pattern:list[str], path_nodes:list[dict]) -> list[list[str]]:
     '''
     if hasPattern(pattern, path_nodes):
         output = []
-        pattern = list_strip(pattern, "_") #since _X_X_ is essentially the presence of X_X pattern
         i, j = 0, len(pattern) #say, MMM would be 0, 3
         
         #sc
         if j > len(path_nodes):
-            return False
+            return []
     
         
         #normal case
         if not "_" in pattern:
-        
+            print("DIDNT HAPPEN")
             while j <= len(path_nodes):
                 obs = [node["kind"] for node in path_nodes[i:j]] #012 then 123 then 234 etc. Not worrying about optimizing bc O(1)
                 obs_coords = [node["coord"] for node in path_nodes[i:j]]
@@ -134,23 +134,27 @@ def locatePattern(pattern:list[str], path_nodes:list[dict]) -> list[list[str]]:
     
         #filler case
         else:
+            print("HAPPENED")
             while j <= len(path_nodes):
-                obs = [node["kind"] for node in path_nodes[i:j]] #so say it's RME
-                obs_coords = [node["coord"] for node in path_nodes[i:j]]
-                #for every event in obs, check if it has a match or a filler in pattern
-                #if every event comes out OK, return true
-                comp = [kind for kind in pattern if kind!="_"]
-                dropped = hasPattern(comp, path_nodes)
-                if comp in obs:  output.append(obs_coords)
-                acceptable = True
-                for k in range(len(obs)):
-                    if (obs[k] != pattern[k]) and (pattern[k] != "_"):
-                        acceptable = False
-                        break
-                if acceptable or dropped:
-                    output.append(obs_coords)
-                i+=1
-                j+=1
+                acceptable = False
+                while j <= len(path_nodes):
+                    obs = [node["kind"] for node in path_nodes[i:j]]
+                    obs_coords = [node["coord"] for node in path_nodes[i:j]]
+                    acceptable = True #whether the observation would fit the pattern's request
+        
+                    #comparing obs to safety fillers
+                    for i in range(len(obs)): #so for each node in obs...
+                        if pattern[i] == "_": #if the pattern requests a safe node...
+                            if obs[i] in {"combat", "boss", "elite"}: #if safe node dne, pattern dne at that location
+                                acceptable = False
+                                break #look for pattern in next index
+                        elif pattern[i] != obs[i]: #if there's a mismatch among nodes pattern doesn't rq as safe...
+                            acceptable = False
+                            break
+                    if acceptable: 
+                        output.append(obs_coords)
+                    i+=1
+                    j+=1
         return output
     else:
         return []
@@ -167,38 +171,41 @@ def locateOptionality(path_nodes:list[dict]) -> list[list[str]]:
             optional_nodes.append(n["coord"])
     return optional_nodes
     
-def evaluatePath(path, act_heuristics):
-    policies = {
-        "too_many_fights": "min",
-        "strong_start": "max",
-        "safe_elite": "max",
-    }
+def evaluatePath(path:list[str], act:str) -> int:
+    '''
+    Calculates the grade for a particular path based on some heuristics
+    Sums the positive and negative weights associated with each category for said path
+    E.g., if a path has 2 instances of +1 safe elite and 1 instance of -2 too many combats, would score as 0
+    Returns that sum
+    Think of it as grading by a rubric of heuristics. See heuristics.py for more info
+
+    path :: list of events constituting the path (ex: ["ancient","combat","event","rest",...])
+    act :: which act path is being graded in (will affect score) "act1" "act2" "act3"
+    heuristics :: full heuristic dict, used for combing through categories
+    '''
+    categories = heuristics["pattern_weights"][act].keys()
 
     return sum(
         evaluateCategory(
             path,
-            patterns,
-            policies.get(category, "max"),
+            category,
+            act
         )
-        for category, patterns in act_heuristics.items()
+        for category in categories
     )
 
-def grabPathGrades(map:dict) -> list[list[str]]:
+def grabPathGrades(actmap:dict) -> list[list[str]]:
     '''
     Returns coordinate sequence for all possible paths in act
     map :: full map dict
     '''
     output = {}
-    act = f"act{map["act"]}"
-    heur = heuristics["pattern_weights"][act]
-    all_paths = getAllPaths("3,0", map["nodes"])
+    act = f"act{actmap["act"]}"
+    all_paths = getAllPaths("3,0", actmap["nodes"]) #3,0 is constant coords for ancient
     for p in all_paths:
-        # print("p",p)
-        info = getPathInfo(p,map["nodes"])
-        # print("info",info)
-        events = tuple([n["kind"] for n in info])
-        # print("events", events)
-        grade = evaluatePath(events, heur)
+        info = getPathInfo(p,actmap["nodes"])
+        events = [n["kind"] for n in info]
+        grade = evaluatePath(events, act)
         output[tuple(p)] = grade
     return output
 
@@ -211,6 +218,9 @@ def locateBestPaths(map:dict) -> list[list[str]]:
     map: full map 
     '''
     path_grades = grabPathGrades(map)
+    # print("path grades", path_grades)
     max_val = max(path_grades.values())
+    # print("max value", max_val)
     best_val_paths = [k for k, v in path_grades.items() if v==max_val]
+    # print("best val paths", best_val_paths)
     return best_val_paths
