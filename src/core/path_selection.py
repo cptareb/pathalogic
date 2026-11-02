@@ -38,7 +38,6 @@ def getAllPaths(start_coords:str, nodes:list[dict]) -> list[list[str]]:
             for child in node["children"]:
                 for path in getAllPaths(child, nodes):
                     paths.append([start_coords] + path)
-            # print("returning", paths)
             return paths
 
     return []
@@ -85,7 +84,6 @@ def hasPattern(pattern:list[str], path_nodes:list[dict]) -> bool:
 
     #filler case
     else:
-        print("HAPPENED")
         acceptable = False
         while j <= len(path_nodes):
             obs = [node["kind"] for node in path_nodes[i:j]]
@@ -124,7 +122,6 @@ def locatePattern(pattern:list[str], path_nodes:list[dict]) -> list[list[str]]:
         
         #normal case
         if not "_" in pattern:
-            print("DIDNT HAPPEN")
             while j <= len(path_nodes):
                 obs = [node["kind"] for node in path_nodes[i:j]] #012 then 123 then 234 etc. Not worrying about optimizing bc O(1)
                 obs_coords = [node["coord"] for node in path_nodes[i:j]]
@@ -134,7 +131,6 @@ def locatePattern(pattern:list[str], path_nodes:list[dict]) -> list[list[str]]:
     
         #filler case
         else:
-            print("HAPPENED")
             while j <= len(path_nodes):
                 acceptable = False
                 while j <= len(path_nodes):
@@ -194,7 +190,7 @@ def evaluatePath(path:list[str], act:str) -> int:
         for category in categories
     )
 
-def grabPathGrades(actmap:dict) -> list[list[str]]:
+def grabAllPathGrades(actmap:dict) -> list[list[str]]:
     '''
     Returns coordinate sequence for all possible paths in act
     map :: full map dict
@@ -209,18 +205,13 @@ def grabPathGrades(actmap:dict) -> list[list[str]]:
         output[tuple(p)] = grade
     return output
 
-        
-
-def locateBestPaths(map:dict) -> list[list[str]]:
+def locateAllBestPaths(map:dict) -> list[list[str]]:
     '''
     Returns coordinate sequence for best path per act heuristics
     On a tie, returns rightmost (most recently scanned) path
     map: full map 
     '''
-    path_grades = grabPathGrades(map)
-    # print("path grades", path_grades)
+    path_grades = grabAllPathGrades(map)
     max_val = max(path_grades.values())
-    # print("max value", max_val)
     best_val_paths = [k for k, v in path_grades.items() if v==max_val]
-    # print("best val paths", best_val_paths)
     return best_val_paths

@@ -6,14 +6,11 @@ map = {'t': 'map', 's': 3, 'ms': 627, 'floor': 0, 'act': 1, 'gen': 1, 'boss': 'W
 def test_render_graph():
     fig, ax, graph, positions = render_graph(map["nodes"])
     path = getAllPaths("1,1", map["nodes"])[1] #this is the chosen path I want to test against
-    # print("chosen path", path)
     info = getPathInfo(path, map["nodes"])
     opt_loc = locateOptionality(info)
-    best_paths = locateBestPaths(map)
-    # print("best paths", best_paths)
+    best_paths = locateAllBestPaths(map)
 
     for path in best_paths:
-        print("path", path)
         add_path_overlay(
             ax, graph, positions,
             path,
