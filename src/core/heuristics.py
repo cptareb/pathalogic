@@ -6,14 +6,13 @@ heuristics = {
             "too_many_fights":{
                 ("ancient","monster", "monster", "monster", "monster"): -1,
                 ("ancient","monster", "monster", "monster", "monster","_","elite"): -3,
-                ("ancient","monster", "monster", "monster", "monster", "monster"): -2,
+                ("ancient","monster", "monster", "monster", "monster", "monster"): -100,
                 ("elite", "monster", "elite"): -2
             },
 
             "strong_start":{
-                ("ancient","monster","monster","monster","_","elite"): 1,
+                ("ancient","monster","monster","monster","restsite","elite"): 1,
                 ("ancient","monster", "monster", "monster", "shop", "restsite", "elite"): 5,
-                ("ancient","monster","_","monster","monster","monster","monster","restsite"):0
             },
 
             "safe_elite":{
@@ -133,7 +132,7 @@ def selectPatterns(path: list[str], patterns: dict[tuple[str]]) -> tuple[list[tu
         length = len(pattern)
 
         if length == 0:
-            raise ValueError("Empty pattern")
+            raise ValueError("empty pattern")
 
         for start in range(n - length + 1):
             end = start + length
@@ -143,7 +142,7 @@ def selectPatterns(path: list[str], patterns: dict[tuple[str]]) -> tuple[list[tu
 
     # DP
     # dp[i] = optimal score using the first i nodes.
-    dp = [0] * (n + 1)
+    dp = [(0,0)] * (n + 1)
 
     #tracking path (would look like [(0, "ancient"->5xcombats, -2)]) for each pattern detected
     choices = [None] * (n + 1)
@@ -151,16 +150,21 @@ def selectPatterns(path: list[str], patterns: dict[tuple[str]]) -> tuple[list[tu
     #for each position...
     for i in range(1, n + 1):
 
-        #if prev position had value from a pattern, inherit it
+        #inherit prev position's values by default
         dp[i] = dp[i - 1]
 
         for start, pattern, score in matches[i]:
+            prev_seen, prev_score = dp[start]
 
-            #if the current node contributes positively to the score, include it in this chunk of the pattern...
-            candidate = dp[start] + score
+            #looking at a "candidate" node for extending a maybe-extant pattern
+            #eg we might have prev_seen rep some nodes RE, candidate R, we'd include bc plus score
+            candidate = (
+                prev_seen + len(pattern), #proposed extension of the pattern
+                prev_score + score #actual score of resulting pattern
+            )
 
-            if candidate > dp[i]:
-                dp[i] = candidate
+            if candidate > dp[i]: #lexicographical comparison. Essentially, we only care about length but still track score as tiebreaker
+                dp[i] = candidate #...set...
                 choices[i] = (start, pattern, score) #...and record thusly
 
     #reconstruct the selected sequence
@@ -179,8 +183,8 @@ def selectPatterns(path: list[str], patterns: dict[tuple[str]]) -> tuple[list[tu
             i = start
 
     selected.reverse()
-
-    return selected, dp[n]
+    # print("selected", selected)
+    return selected, dp[n][1]
 
 
 
